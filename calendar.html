@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>カレンダー</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+
+    /* カレンダー全体を縦長の長方形にする箱 */
+    #calendarContainer {
+      max-width: 400px;   /* PCでもスマホでもこの幅に収まる */
+      margin: 0 auto;     /* 中央に配置 */
+      padding: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      background-color: #f0f0f0;
+      padding: 8px;
+      font-size: 16px;
+    }
+
+    td {
+      width: 14%;
+      height: 55px;
+      border: 1px solid #ccc;
+      cursor: pointer;
+      text-align: center;
+      color: black;       /* 通常の日は黒文字 */
+      font-size: 16px;    /* スマホでも見やすいサイズ */
+    }
+
+    /* 通常の予定（黄色背景＋黒文字） */
+    .hasTask {
+      background-color: #FFEB99;
+      color: black;
+      border-radius: 6px;
+    }
+
+    /* 重要な予定（赤背景＋黒文字） */
+    .highTask {
+      background-color: #FF6666;
+      color: black;
+      font-weight: bold;
+      border-radius: 6px;
+    }
+
+    /* 今日（黒の太枠＋黒文字） */
+    .today {
+      border: 3px solid black;
+      font-weight: bold;
+      border-radius: 6px;
+      color: black;
+    }
+
+    .navBtn {
+      font-size: 20px;
+      cursor: pointer;
+      padding: 8px 12px;
+    }
+
+    /* スマホ向けレイアウト（画面幅600px以下） */
+    @media (max-width: 600px) {
+      td {
+        height: 60px;
+        font-size: 18px;
+      }
+
+      th {
+        font-size: 18px;
+      }
+
+      .navBtn {
+        font-size: 18px;
+        padding: 10px 14px;
+      }
+    }
+    .month-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  max-width: 400px;
+  margin: 20px auto;
+}
+
+.month-grid button {
+  padding: 12px 0;
+  font-size: 18px;
+  border: 1px solid #ccc;
+  background: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+}
+/* 月グリッドの当月を太枠で強調 */
+.month-grid .current-month {
+  border: 3px solid black;
+  font-weight: bold;
+}
+
+  </style>
+</head>
+
+<body>
+
+  <h1 id="monthTitle"></h1>
+
+  <!-- 月切り替えボタン -->
+  <div>
+    <span class="navBtn" onclick="prevMonth()">← 前の月</span>
+    <span class="navBtn" onclick="nextMonth()">次の月 →</span>
+  </div>
+
+  <br>
+
+  <!-- カレンダー本体（縦長の箱に収める） -->
+  <div id="calendarContainer">
+    <table id="calendar"></table>
+  </div>
+
+<!-- 月選択グリッド -->
+<div class="month-grid">
+  <button data-month="0">1月</button>
+  <button data-month="1">2月</button>
+  <button data-month="2">3月</button>
+  <button data-month="3">4月</button>
+
+  <button data-month="4">5月</button>
+  <button data-month="5">6月</button>
+  <button data-month="6">7月</button>
+  <button data-month="7">8月</button>
+
+  <button data-month="8">9月</button>
+  <button data-month="9">10月</button>
+  <button data-month="10">11月</button>
+  <button data-month="11">12月</button>
+</div>
+
+
+  <script>
+    // 全ての予定データ
+    const allTasks = JSON.parse(localStorage.getItem("allTasks")) || {};
+
+    // 現在の表示中の年月
+    let current = new Date();
+
+    // カレンダー生成
+    function generateCalendar(year, month) {
+      const calendar = document.getElementById("calendar");
+      const monthTitle = document.getElementById("monthTitle");
+
+      calendar.innerHTML = "";
+
+      // タイトル（例：2026年9月）
+      monthTitle.textContent = `${year}年 ${month + 1}月`;
+
+      // 曜日行
+      const days = ["日", "月", "火", "水", "木", "金", "土"];
+      let headerRow = document.createElement("tr");
+      days.forEach(d => {
+        const th = document.createElement("th");
+        th.textContent = d;
+        headerRow.appendChild(th);
+      });
+      calendar.appendChild(headerRow);
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const lastDate = new Date(year, month + 1, 0).getDate();
+
+      let row = document.createElement("tr");
+
+      // 空白セル
+      for (let i = 0; i < firstDay; i++) {
+        row.appendChild(document.createElement("td"));
+      }
+
+      // 日付セル
+      for (let date = 1; date <= lastDate; date++) {
+        const cell = document.createElement("td");
+        cell.textContent = date;
+
+        const dateStr =
+          `${year}-${String(month + 1).padStart(2, "0")}-${String(date).padStart(2, "0")}`;
+
+        // 今日（黒の太枠）
+        const now = new Date();
+        const isToday =
+          year === now.getFullYear() &&
+          month === now.getMonth() &&
+          date === now.getDate();
+
+        if (isToday) {
+          cell.classList.add("today");
+        }
+
+        // 予定がある日
+        if (allTasks[dateStr] && allTasks[dateStr].length > 0) {
+          const tasks = allTasks[dateStr];
+
+          // 重要な予定
+          if (tasks.some(t => t.importance === "high")) {
+            cell.classList.add("highTask");
+          } else {
+            cell.classList.add("hasTask"); // 通常の予定
+          }
+        }
+
+        // 日付クリック
+        cell.onclick = () => {
+          localStorage.setItem("selectedDate", dateStr);
+          window.location.href = "index.html";
+        };
+
+        row.appendChild(cell);
+
+        // 週の終わりで改行
+        if ((firstDay + date) % 7 === 0) {
+          calendar.appendChild(row);
+          row = document.createElement("tr");
+        }
+      }
+
+      calendar.appendChild(row);
+    }
+
+    // 前の月へ
+    function prevMonth() {
+      current.setMonth(current.getMonth() - 1);
+      generateCalendar(current.getFullYear(), current.getMonth());
+    }
+
+    // 次の月へ
+    function nextMonth() {
+      current.setMonth(current.getMonth() + 1);
+      generateCalendar(current.getFullYear(), current.getMonth());
+    }
+
+    // 初期表示
+    generateCalendar(current.getFullYear(), current.getMonth());
+ // 月グリッドのボタンを押したらその月を表示
+document.querySelectorAll(".month-grid button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const month = Number(btn.dataset.month);
+    current.setMonth(month);
+    generateCalendar(current.getFullYear(), current.getMonth());
+  });
+});
+
+// ★ ここから追加 ★
+
+// 月グリッドの当月ボタンを太枠にする
+function updateMonthGridHighlight() {
+  const currentMonthIndex = current.getMonth(); // 0〜11
+
+  document.querySelectorAll(".month-grid button").forEach(btn => {
+    const btnMonth = Number(btn.dataset.month);
+    btn.classList.toggle("current-month", btnMonth === currentMonthIndex);
+  });
+}
+
+// generateCalendar を拡張して月グリッドの強調も更新
+const originalGenerateCalendar = generateCalendar;
+generateCalendar = function(year, month) {
+  originalGenerateCalendar(year, month);
+  updateMonthGridHighlight();
+};
+
+// 初期表示時にも反映
+updateMonthGridHighlight();
+
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>タスク入力ページ</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+ 
+body {
+  font-family: sans-serif;
+  padding: 16px;
+  max-width: 480px;
+  margin: auto;
+}
+
+  h2 {
+    font-size: 20px;
+    margin-top: 24px;
+  }
+
+  /* ★ スマホ向けボタン */
+  button {
+    width: 100%;
+    max-width: 300px;
+    height: 48px;
+    font-size: 18px;
+    margin: 8px 0;
+    border-radius: 8px;
+    border: 1px solid #0078D4;
+    background-color: #f0f0f0;
+    cursor: pointer;
+    text-align: center;
+  }
+
+
+#dropdownHeader {
+  text-align: left;
+}
+
+  /* ★ スマホ向け入力欄 */
+  input {
+    width: 100%;
+    max-width: 300px;
+    height: 40px;
+    font-size: 18px;
+    padding: 6px;
+    margin: 8px 0;
+  }
+
+  /* ★ ドロップダウンを左揃え */
+  #dropdownHeader {
+    text-align: left;
+    width: 100%;
+    max-width: 300px;
+    font-size: 18px;
+    margin: 8px 0;
+  }
+
+  #pastTaskList li {
+    font-size: 18px;
+  }
+
+#dropdownHeader {
+  display: block;
+  margin-left: 0;
+  text-align: left;
+}
+
+button#backToCalendarBtn {
+  display: block;        /* ボタン自体は左揃え */
+  margin-left: 0;
+  text-align: center;    /* ★ ボタン内の文字は中央揃え */
+  padding: 10px 20px;
+  font-size: 18px;
+}
+
+/* スマホ画面向け（幅480px以下） */
+@media (max-width: 480px) {
+  body {
+    font-size: 18px;      /* 全体の文字を大きく */
+  }
+
+  button {
+    width: 100%;
+    max-width: 320px;
+    height: 52px;         /* ボタンを大きく */
+    font-size: 20px;      /* ボタン文字を大きく */
+  }
+
+  input {
+    width: 100%;
+    max-width: 320px;
+    height: 44px;
+    font-size: 20px;      /* 入力欄の文字を大きく */
+  }
+
+  .taskItem {
+    font-size: 20px;      /* 予定一覧の文字も大きく */
+  }
+}
+
+@media (max-width: 600px) {
+  body {
+    font-size: 22px;   /* ← 文字を大きくする */
+  }
+
+  input, button, select {
+    font-size: 22px;   /* ← 入力欄・ボタンの文字も大きくする */
+  }
+}
+
+@media (max-width: 600px) {
+
+  h1, h2, h3 {
+    margin-top: 10px;
+    margin-bottom: 10px;   /* ← 見出しの余白を小さく */
+  }
+
+  input, button, select {
+    margin: 6px 0;         /* ← 入力欄・ボタンの余白を小さく */
+    height: 46px;          /* ← 高さも少しだけ抑える */
+    font-size: 20px;
+  }
+
+  #dropdownBox {
+    padding: 6px;          /* ← ボックスの余白を減らす */
+    margin-bottom: 10px;
+  }
+
+  #taskList {
+    margin-top: 10px;
+  }
+
+  body {
+    padding: 8px;          /* ← 全体の余白を減らす */
+  }
+}
+
+/* スマホ向け（幅600px以下） */
+@media (max-width: 600px) {
+
+  /* 見出しの余白とサイズを少し抑える */
+  h1 {
+    font-size: 22px;
+    margin: 8px 0;
+  }
+  h2 {
+    font-size: 20px;
+    margin: 6px 0;
+  }
+  h3 {
+    font-size: 18px;
+    margin: 6px 0;
+  }
+
+  /* 入力欄・ボタンの高さと余白を抑える */
+  input, button, select {
+    height: 46px;
+    font-size: 20px;
+    margin: 6px 0;
+  }
+
+  /* ドロップダウンボックスの余白を抑える */
+  #dropdownBox {
+    padding: 6px;
+    margin-bottom: 10px;
+  }
+
+  /* タスク一覧の文字を少し小さくして縦の長さを抑える */
+  #taskList {
+    font-size: 18px;
+    margin-top: 10px;
+  }
+
+  /* 全体の余白を少し減らす */
+  body {
+    padding: 8px;
+  }
+}
+
+/* 入力欄の外枠を細い黒枠にする */
+input {
+  border: 1px solid #333;   /* ★ 細い黒枠 */
+  border-radius: 6px;       /* ★ 少し丸みをつけて見やすく */
+}
+
+/* 時間入力欄のプレースホルダーを見やすくする */
+#timeInput::placeholder {
+  color: #555;   /* 少し濃いグレーで視認性アップ */
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;   /* ★ 中央揃え */
+  padding: 20px;         /* ★ 左右に余白を作る */
+  box-sizing: border-box;
+}
+/* ★ 追加ボタンを赤色にする */
+#addBtn {
+  background-color: #ff4d4d;   /* 内側を赤く */
+  color: white;                /* 文字は白 */
+  border: none;
+  border-radius: 8px;
+  height: 48px;
+  font-size: 20px;
+  cursor: pointer;
+}
+#addBtn:hover {
+  background-color: #e64545;   /* 少し濃い赤に */
+}
+
+/* ★ 開始・一覧ボタンを横並びにする */
+.actionRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.actionRow button {
+  width: 48%;          /* 半分ずつ */
+  height: 48px;
+  font-size: 20px;
+  border-radius: 8px;
+  border: 1px solid #0078D4;
+  background-color: #f0f0f0;
+  cursor: pointer;
+}
+
+</style>
+
+<link rel="manifest" href="manifest.json">
+
+</head>
+<body>
+
+<h2 id="selectedDateDisplay"></h2>
+
+<h1>今日の予定を作る</h1>
+
+<input id="taskInput" placeholder="タスク名">
+
+<!-- ★ 非表示のセレクト（JSが参照するためだけに必要） -->
+<select id="pastTaskSelect" style="display:none;"></select>
+
+<!-- ★ ドロップダウンボックス（普段は閉じている） -->
+
+<div id="dropdownBox" style="
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 6px;
+  max-width: 300px;
+  margin: 0;                /* ★ 左寄せに変更 */
+  background-color: #f9f9f9;
+">
+
+
+  <div id="dropdownHeader"
+       style="cursor:pointer; color:#666;">
+    ▼ 過去に使ったタスクから選ぶ
+  </div>
+
+  <!-- ★ 最初は非表示 -->
+  <ul id="pastTaskList"
+      style="list-style:none; padding-left:0; display:none;"></ul>
+</div>
+
+<input id="timeInput" type="time" placeholder="予定時刻">
+<button id="addBtn" onclick="addTask()">追加</button>
+
+<h2>登録されたタスク</h2>
+<ul id="taskList"></ul>
+
+<div class="actionRow">
+  <button onclick="startView()">予定を開始</button>
+  <button onclick="goToList()">一覧を見る</button>
+</div>
+
+<script src="app.js"></script>
+
+<div style="text-align:left; margin-top:20px;">
+  <button id="backToCalendarBtn"
+          onclick="window.location.href='calendar.html'">
+    カレンダーへ戻る
+  </button>
+</div>
+
+<script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("service-worker.js");
+  }
+</script>
+
+<script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("service-worker.js");
+  }
+</script>
+
+<script>
+function goToList() {
+  window.location.href = "checklist.html";
+}
+</script>
+
+</body>
+</html>

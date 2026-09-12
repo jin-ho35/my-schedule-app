@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>予定開始</title>
+
+  <style>
+  body {
+    font-family: sans-serif;
+    padding: 16px;
+    max-width: 480px;
+    margin: auto;
+    text-align: center;
+  }
+
+  #taskBox {
+    font-size: 22px;
+    margin: 24px 0;
+  }
+
+  .btnRow {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 24px;
+  }
+
+  /* ★ スマホ向けボタン */
+  .btnRow button {
+    width: 140px;
+    height: 48px;      /* スマホ向け */
+    font-size: 18px;
+    border-radius: 8px;
+    border: 1px solid #0078D4;
+    background-color: #f0f0f0;
+    cursor: pointer;
+  }
+
+  .btnRow button:hover {
+    background-color: #e0e0e0;
+  }
+
+  /* スマホ向け（幅600px以下） */
+@media (max-width: 600px) {
+
+ #taskBox {
+  font-size: 35px;      /* ★ 大きくして主役に */
+  font-weight: bold;    /* ★ 太字で視認性アップ */
+  padding: 14px;        /* ★ 余白を広げて読みやすく */
+  color: #222;          /* ★ 少し濃い色で強調 */
+}
+
+  #nextTaskBox {
+    font-size: 22px;
+    margin-bottom: 25px;
+  }
+
+  .btnRow {
+    flex-direction: row;        /* ★ 横並びにする */
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .btnRow button {
+    width: 48%;                 /* ★ 横並びでも押しやすい幅 */
+    height: 55px;
+    font-size: 22px;
+  }
+}
+
+/* ページ全体を少し大きく */
+body {
+  font-size: 22px;
+}
+
+/* 現在の予定と次の予定を大きく見やすく */
+#currentTaskBox, #nextTaskBox {
+  font-size: 24px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+/* 予定追加・カレンダーボタン（スマホ用） */
+@media (max-width: 600px) {
+  .bottomButtons button {
+    width: 100%;
+    height: 45px;      /* ← 今より少し大きい */
+    font-size: 21px;   /* ← 見やすいけど控えめ */
+    margin-top: 12px;
+  }
+}
+
+/* 予定追加・カレンダーボタンを横並びにする（スマホ用） */
+@media (max-width: 600px) {
+  .bottomButtons {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .bottomButtons button {
+    width: 48%;        /* 横並びでも押しやすい幅 */
+    height: 45px;      /* あなたが希望した「中くらいの大きさ」 */
+    font-size: 21px;
+  }
+}
+
+/* 時刻−予定の表示枠をカード風にする */
+#taskBox {
+  background: #fff9d6;        /* ★ 薄い黄色 */
+  border: 2px solid #f0e4a0;  /* ★ 優しい黄色の枠線 */
+  border-radius: 10px;        /* ★ 角を丸くして見やすく */
+  padding: 20px;              /* ★ 3行分くらいの余白 */
+  min-height: 90px;           /* ★ 高さを確保（約3行分） */
+}
+
+</style>
+
+
+</head>
+<body>
+
+  <h1>予定開始</h1>
+
+  <h2 id="viewDate"></h2>
+
+<div id="taskBox">
+  <div id="taskTime"></div>
+  <div id="taskName"></div>
+</div>
+
+<!-- ★ 次の予定（小さめ表示） -->
+<div id="nextTaskBox" style="font-size:16px; color:#666; margin-top:10px;">
+</div>
+
+<div class="btnRow">
+  <button onclick="prevTask()">戻る</button>
+  <button onclick="nextTask()">次へ</button>
+</div>
+
+<div class="bottomButtons" style="margin-top:20px;">
+  <button onclick="goToInput()">予定追加</button>
+  <button onclick="goToCalendar()">カレンダー</button>
+</div>
+
+  <script>
+    // 選択された日付
+    const selectedDate = localStorage.getItem("selectedDate");
+    document.getElementById("viewDate").textContent = selectedDate;
+
+    // 日付ごとの予定
+    const allTasks = JSON.parse(localStorage.getItem("allTasks")) || {};
+
+    // ★ この日付の予定だけを使う（ここが重要）
+    let tasks = JSON.parse(localStorage.getItem("timedTasks")) || [];
+
+    let index = 0;
+
+    function nextTask() {
+  if (index < tasks.length) {
+    const t = tasks[index];
+   document.getElementById("taskTime").textContent = t.time;
+document.getElementById("taskName").textContent = t.name;
+
+
+    // ★ 次の予定を表示（小さめ）
+    if (index + 1 < tasks.length) {
+      const next = tasks[index + 1];
+      document.getElementById("nextTaskBox").textContent =
+        `次の予定： ${next.time} - ${next.name}`;
+    } else {
+      document.getElementById("nextTaskBox").textContent = "";
+    }
+
+    index++;
+  } else {
+    document.getElementById("taskBox").textContent = "今日の予定はすべて完了しました！";
+    document.getElementById("nextTaskBox").textContent = "";
+  }
+}
+
+    function prevTask() {
+  if (index > 1) {
+    index -= 2;
+    nextTask();
+  } else {
+    // ★ 最初のタスクに戻る
+    index = 0;
+    document.getElementById("taskBox").textContent = "最初の予定";
+    document.getElementById("nextTaskBox").textContent = "";
+  }
+}
+
+
+    function goToInput() {
+      window.location.href = "index.html";
+    }
+
+    function goToCalendar() {
+      window.location.href = "calendar.html";
+    }
+
+nextTask();
+
+
+  </script>
+
+</body>
+</html>

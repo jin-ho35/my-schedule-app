@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>タスク一覧</title>
+
+<style>
+  body {
+    font-family: sans-serif;
+    padding: 16px;
+    max-width: 480px;
+    margin: auto;
+    text-align: center;
+  }
+
+  h1 {
+    margin-bottom: 10px;
+  }
+
+  #taskGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);   /* ★ 横4列 */
+    gap: 10px;                                /* ★ カード間の余白 */
+    margin-top: 20px;
+  }
+
+  .taskCard {
+    background: #fff9d6;                      /* ★ 初期は薄い黄色 */
+    border: 2px solid #f0e4a0;
+    border-radius: 10px;
+    padding: 12px;
+    min-height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .taskCard.done {
+    background: #dcdcdc;                      /* ★ 達成後は灰色 */
+    color: #666;
+    border-color: #bbb;
+  }
+
+  /* スマホ向け */
+  @media (max-width: 600px) {
+    .taskCard {
+      min-height: 70px;
+      font-size: 18px;
+    }
+  }
+
+  button {
+    margin-top: 20px;
+    width: 100%;
+    height: 45px;
+    font-size: 20px;
+    border-radius: 8px;
+    border: 1px solid #0078D4;
+    background-color: #f0f0f0;
+    cursor: pointer;
+  }
+</style>
+</head>
+
+<body>
+
+<h1>タスク一覧</h1>
+<h2 id="viewDate"></h2>
+
+<div id="taskGrid"></div>
+
+<button onclick="goBack()">戻る</button>
+
+<script>
+  // 今日の日付
+  const selectedDate = localStorage.getItem("selectedDate");
+  document.getElementById("viewDate").textContent = selectedDate;
+
+  // 全タスク
+  const allTasks = JSON.parse(localStorage.getItem("allTasks")) || {};
+  const tasks = allTasks[selectedDate] || [];
+
+  // 達成状態の保存領域（ページを閉じても残る）
+  const doneKey = "doneTasks_" + selectedDate;
+  let doneTasks = JSON.parse(localStorage.getItem(doneKey)) || [];
+
+  const grid = document.getElementById("taskGrid");
+
+  // タスクをグリッドに表示
+ // ★ 時刻なしタスクだけ抽出
+const noTimeTasks = tasks.filter(t => !t.time);
+
+// グリッドに表示
+noTimeTasks.forEach((t, index) => {
+  const card = document.createElement("div");
+  card.className = "taskCard";
+
+  // 達成済みなら灰色にする
+  if (doneTasks.includes(index)) {
+    card.classList.add("done");
+  }
+
+  card.textContent = t.name;
+
+  // タップで達成状態を切り替え
+  card.onclick = () => {
+    card.classList.toggle("done");
+
+    if (card.classList.contains("done")) {
+      doneTasks.push(index);
+    } else {
+      doneTasks = doneTasks.filter(i => i !== index);
+    }
+
+    localStorage.setItem(doneKey, JSON.stringify(doneTasks));
+  };
+
+  grid.appendChild(card);
+});
+
+  function goBack() {
+  window.location.href = "index.html";
+}
+
+</script>
+
+</body>
+</html>
