@@ -153,8 +153,12 @@ body {
 
     // ★ この日付の予定だけを使う（ここが重要）
     let tasks = JSON.parse(localStorage.getItem("timedTasks")) || [];
-
     let index = 0;
+
+    // 予定開始時は必ず最初の予定からスタート
+index = 0;
+document.getElementById("taskBox").textContent = "最初の予定です";
+document.getElementById("nextTaskBox").textContent = tasks[0] ? tasks[0].name : "";
 
     function nextTask() {
   if (index < tasks.length) {
@@ -179,18 +183,26 @@ document.getElementById("taskName").textContent = t.name;
   }
 }
 
-    function prevTask() {
+function prevTask() {
+  // まだ1つ目より後なら、普通に1つ戻る
   if (index > 1) {
-    index -= 2;
-    nextTask();
-  } else {
-    // ★ 最初のタスクに戻る
+    index -= 1;
+    document.getElementById("taskBox").textContent = tasks[index - 1];
+    document.getElementById("nextTaskBox").textContent =
+      tasks[index] ? tasks[index] : "";
+  }
+  // 1つ目の予定に戻る場合
+  else if (index === 1) {
     index = 0;
-    document.getElementById("taskBox").textContent = "最初の予定";
-    document.getElementById("nextTaskBox").textContent = "";
+    document.getElementById("taskBox").textContent = "最初の予定です";
+    document.getElementById("nextTaskBox").textContent = tasks[0];
+  }
+  // 最初の予定ですの状態でさらに戻るを押した場合
+  else {
+    document.getElementById("taskBox").textContent = "最初の予定です";
+    document.getElementById("nextTaskBox").textContent = tasks[0];
   }
 }
-
 
     function goToInput() {
       window.location.href = "index.html";
