@@ -1,0 +1,9 @@
+{
+  "name": "タスク管理帳",
+  "short_name": "タスク帳",
+  "start_url": "/my-schedule-app/index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": []
+}
