@@ -144,7 +144,7 @@ body {
 </div>
 
   <script>
-   // 選択された日付
+// 選択された日付
 const selectedDate = localStorage.getItem("selectedDate");
 document.getElementById("viewDate").textContent = selectedDate;
 
@@ -154,10 +154,14 @@ let index = 0;
 
 // ★ 初期表示（予定開始時）
 document.getElementById("taskBox").textContent = "最初の予定です";
+document.getElementById("taskTime").textContent = "";
+document.getElementById("taskName").textContent = "";
 document.getElementById("nextTaskBox").textContent = tasks[0] ? tasks[0].name : "";
 
 // ★ 次へ
 function nextTask() {
+  document.getElementById("taskBox").textContent = ""; // ★追加
+
   if (index < tasks.length) {
     const t = tasks[index];
     document.getElementById("taskTime").textContent = t.time;
@@ -175,6 +179,8 @@ function nextTask() {
   } else {
     document.getElementById("taskBox").textContent =
       "今日の予定はすべて完了しました！";
+    document.getElementById("taskTime").textContent = "";
+    document.getElementById("taskName").textContent = "";
     document.getElementById("nextTaskBox").textContent = "";
   }
 }
@@ -208,6 +214,8 @@ function prevTask() {
   } else {
     index = 0;
     document.getElementById("taskBox").textContent = "最初の予定です";
+    document.getElementById("taskTime").textContent = "";
+    document.getElementById("taskName").textContent = "";
     document.getElementById("nextTaskBox").textContent =
       tasks[0] ? tasks[0].name : "";
   }
