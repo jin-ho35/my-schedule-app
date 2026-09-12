@@ -144,75 +144,82 @@ body {
 </div>
 
   <script>
-    // 選択された日付
-    const selectedDate = localStorage.getItem("selectedDate");
-    document.getElementById("viewDate").textContent = selectedDate;
+   // 選択された日付
+const selectedDate = localStorage.getItem("selectedDate");
+document.getElementById("viewDate").textContent = selectedDate;
 
-    // 日付ごとの予定
-    const allTasks = JSON.parse(localStorage.getItem("allTasks")) || {};
+// 日付ごとの予定
+let tasks = JSON.parse(localStorage.getItem("timedTasks")) || [];
+let index = 0;
 
-    // ★ この日付の予定だけを使う（ここが重要）
-    let tasks = JSON.parse(localStorage.getItem("timedTasks")) || [];
-    let index = 0;
-
-    // 予定開始時は必ず最初の予定からスタート
+// ★ 初期表示（予定開始時）
 document.getElementById("taskBox").textContent = "最初の予定です";
 document.getElementById("nextTaskBox").textContent = tasks[0] ? tasks[0].name : "";
 
-    function nextTask() {
+// ★ 次へ
+function nextTask() {
   if (index < tasks.length) {
     const t = tasks[index];
-   document.getElementById("taskTime").textContent = t.time;
-document.getElementById("taskName").textContent = t.name;
+    document.getElementById("taskTime").textContent = t.time;
+    document.getElementById("taskName").textContent = t.name;
 
-
-    // ★ 次の予定を表示（小さめ）
     if (index + 1 < tasks.length) {
       const next = tasks[index + 1];
       document.getElementById("nextTaskBox").textContent =
-        `次の予定： ${next.time} - ${next.name}`;
+        `次の予定：${next.time} - ${next.name}`;
     } else {
       document.getElementById("nextTaskBox").textContent = "";
     }
 
     index++;
   } else {
-    document.getElementById("taskBox").textContent = "今日の予定はすべて完了しました！";
+    document.getElementById("taskBox").textContent =
+      "今日の予定はすべて完了しました！";
     document.getElementById("nextTaskBox").textContent = "";
   }
 }
 
+// ★ 戻る
 function prevTask() {
-  // まだ1つ目より後なら、普通に1つ戻る
-  if (index > 1) {
-    index -= 1;
-    document.getElementById("taskBox").textContent = tasks[index - 1];
-    document.getElementById("nextTaskBox").textContent =
-      tasks[index] ? tasks[index] : "";
+  if (index >= tasks.length) {
+    index = tasks.length - 1;
+    const t = tasks[index];
+    document.getElementById("taskTime").textContent = t.time;
+    document.getElementById("taskName").textContent = t.name;
+    document.getElementById("nextTaskBox").textContent = "";
+    return;
   }
-  // 1つ目の予定に戻る場合
-  else if (index === 1) {
+
+  if (index > 1) {
+    index -= 2;
+    const t = tasks[index];
+    document.getElementById("taskTime").textContent = t.time;
+    document.getElementById("taskName").textContent = t.name;
+
+    if (index + 1 < tasks.length) {
+      const next = tasks[index + 1];
+      document.getElementById("nextTaskBox").textContent =
+        `次の予定：${next.time} - ${next.name}`;
+    } else {
+      document.getElementById("nextTaskBox").textContent = "";
+    }
+
+    index++;
+  } else {
     index = 0;
     document.getElementById("taskBox").textContent = "最初の予定です";
-    document.getElementById("nextTaskBox").textContent = tasks[0];
-  }
-  // 最初の予定ですの状態でさらに戻るを押した場合
-  else {
-    document.getElementById("taskBox").textContent = "最初の予定です";
-    document.getElementById("nextTaskBox").textContent = tasks[0];
+    document.getElementById("nextTaskBox").textContent =
+      tasks[0] ? tasks[0].name : "";
   }
 }
 
-    function goToInput() {
-      window.location.href = "index.html";
-    }
+function goToInput() {
+  window.location.href = "index.html";
+}
 
-    function goToCalendar() {
-      window.location.href = "calendar.html";
-    }
-
-nextTask();
-
+function goToCalendar() {
+  window.location.href = "calendar.html";
+}
 
   </script>
 
