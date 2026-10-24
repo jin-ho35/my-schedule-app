@@ -2,7 +2,8 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
   <title>予定開始</title>
 
   <style>
@@ -40,80 +41,67 @@
     background-color: #e0e0e0;
   }
 
-  /* スマホ向け（幅600px以下） */
+  .taskItem{
+  background:#eef6ff;
+  border:1px solid #93c5fd;
+  border-radius:10px;
+  padding:5px;
+  margin:10px 0;
+  font-size:24px;
+  cursor:pointer;
+}
+
+.taskItem.done{
+  background:#dcdcdc;
+  color:#666;
+}
+
 @media (max-width: 600px) {
 
- #taskBox {
-  font-size: 35px;      /* ★ 大きくして主役に */
-  font-weight: bold;    /* ★ 太字で視認性アップ */
-  padding: 14px;        /* ★ 余白を広げて読みやすく */
-  color: #222;          /* ★ 少し濃い色で強調 */
-}
-
-  #nextTaskBox {
-    font-size: 22px;
-    margin-bottom: 25px;
+  .taskItem{
+    font-size: 25px;
+    padding: 5px 10px;
   }
 
-  .btnRow {
-    flex-direction: row;        /* ★ 横並びにする */
-    justify-content: space-between;
-    gap: 12px;
-  }
-
-  .btnRow button {
-    width: 48%;                 /* ★ 横並びでも押しやすい幅 */
-    height: 55px;
-    font-size: 22px;
-  }
 }
 
-/* ページ全体を少し大きく */
-body {
-  font-size: 22px;
+#progressBox{
+  font-size:20px;
+  font-weight:bold;
+  margin:10px 0 20px 0;
+  color:#3567b7;
 }
 
-/* 現在の予定と次の予定を大きく見やすく */
-#currentTaskBox, #nextTaskBox {
-  font-size: 24px;
-  padding: 20px;
-  margin: 20px 0;
+.viewButtons {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
 }
 
-/* 予定追加・カレンダーボタン（スマホ用） */
-@media (max-width: 600px) {
-  .bottomButtons button {
-    width: 100%;
-    height: 45px;      /* ← 今より少し大きい */
-    font-size: 21px;   /* ← 見やすいけど控えめ */
-    margin-top: 12px;
-  }
+.viewButtons button {
+  flex: 1;
+  height: 56px;
+  font-size: 20px;
 }
 
-/* 予定追加・カレンダーボタンを横並びにする（スマホ用） */
-@media (max-width: 600px) {
-  .bottomButtons {
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
-  }
-
-  .bottomButtons button {
-    width: 48%;        /* 横並びでも押しやすい幅 */
-    height: 45px;      /* あなたが希望した「中くらいの大きさ」 */
-    font-size: 21px;
-  }
+.dateNav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
 }
 
-/* 時刻−予定の表示枠をカード風にする */
-#taskBox {
-  background: #fff9d6;        /* ★ 薄い黄色 */
-  border: 2px solid #f0e4a0;  /* ★ 優しい黄色の枠線 */
-  border-radius: 10px;        /* ★ 角を丸くして見やすく */
-  padding: 20px;              /* ★ 3行分くらいの余白 */
-  min-height: 90px;           /* ★ 高さを確保（約3行分） */
+.dateNav h2 {
+  margin: 0;
 }
 
+.dateNav button {
+  width: 44px;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  font-size: 26px;
+}
 </style>
 
 
@@ -122,26 +110,21 @@ body {
 
   <h1>予定開始</h1>
 
+ <div class="dateNav">
+  <button type="button" onclick="changeDate(-1)">‹</button>
   <h2 id="viewDate"></h2>
-
-<div id="taskBox">
-  <div id="taskTime"></div>
-  <div id="taskName"></div>
+  <button type="button" onclick="changeDate(1)">›</button>
 </div>
 
-<!-- ★ 次の予定（小さめ表示） -->
-<div id="nextTaskBox" style="font-size:16px; color:#666; margin-top:10px;">
-</div>
+<div id="progressBox"></div>
 
-<div class="btnRow">
-  <button onclick="prevTask()">戻る</button>
-  <button onclick="nextTask()">次へ</button>
-</div>
+<div id="taskList"></div>
 
-<div class="bottomButtons" style="margin-top:20px;">
+<div class="viewButtons">
   <button onclick="goToInput()">予定追加</button>
   <button onclick="goToCalendar()">カレンダー</button>
 </div>
+
 
   <script>
     // 選択された日付
@@ -152,49 +135,11 @@ body {
     const allTasks = JSON.parse(localStorage.getItem("allTasks")) || {};
 
     // ★ この日付の予定だけを使う（ここが重要）
-    let tasks = JSON.parse(localStorage.getItem("timedTasks")) || [];
+    
+const allDayTasks = allTasks[selectedDate] || [];
 
-    let index = 0;
-
-   function nextTask() {
-  if (index < tasks.length) {
-    const t = tasks[index];
-    document.getElementById("taskTime").textContent = t.time;
-    document.getElementById("taskName").textContent = t.name;
-
-    if (index + 1 < tasks.length) {
-      const next = tasks[index + 1];
-      document.getElementById("nextTaskBox").textContent =
-        `次の予定： ${next.time} - ${next.name}`;
-    } else {
-      document.getElementById("nextTaskBox").textContent = "";
-    }
-
-    index++;
-  } else {
-    // ★ taskBox を壊さない
-    document.getElementById("taskTime").textContent = "";
-    document.getElementById("taskName").textContent = "今日の予定はすべて完了しました！";
-    document.getElementById("nextTaskBox").textContent = "";
-  }
-}
-
- function prevTask() {
-  if (index > 1) {
-    index -= 2;
-    nextTask();
-  } else {
-    index = 0;
-
-    // ★ taskBox を壊さない
-    document.getElementById("taskTime").textContent = "";
-    document.getElementById("taskName").textContent = "最初の予定";
-
-    document.getElementById("nextTaskBox").textContent = tasks[0]
-      ? `次の予定： ${tasks[0].time} - ${tasks[0].name}`
-      : "";
-  }
-}
+const tasks =
+  allDayTasks.filter(task => task.time);
 
     function goToInput() {
       window.location.href = "index.html";
@@ -204,13 +149,76 @@ body {
       window.location.href = "calendar.html";
     }
 
-// ★ 初期表示（ページを開いたら最初の予定を表示）
-document.getElementById("taskTime").textContent = "";
-document.getElementById("taskName").textContent = "最初の予定";
-document.getElementById("nextTaskBox").textContent = tasks[0]
-  ? `次の予定： ${tasks[0].time} - ${tasks[0].name}`
-  : "";
+// 今日の予定を表示
+const taskList = document.getElementById("taskList");
 
+// 保存済み達成状態
+const doneKey = "doneTasks_" + selectedDate;
+let doneTasks = JSON.parse(localStorage.getItem(doneKey)) || [];
+
+function updateProgress() {
+
+  document.getElementById("progressBox").textContent =
+    `達成率 ${doneTasks.length} / ${tasks.length}`;
+
+}
+
+tasks.forEach((task, index) => {
+
+  const card = document.createElement("div");
+  card.className = "taskItem";
+
+  // 達成済みなら色変更
+  if (doneTasks.includes(index)) {
+    card.classList.add("done");
+  }
+
+  card.textContent = `${task.time} - ${task.name}`;
+
+  card.onclick = () => {
+
+    card.classList.toggle("done");
+
+    if (card.classList.contains("done")) {
+
+      if (!doneTasks.includes(index)) {
+        doneTasks.push(index);
+      }
+
+    } else {
+
+      doneTasks = doneTasks.filter(i => i !== index);
+
+    }
+
+    localStorage.setItem(
+      doneKey,
+      JSON.stringify(doneTasks)
+    );
+    updateProgress();
+  };
+
+  taskList.appendChild(card);
+  updateProgress();
+});
+
+function changeDate(offset) {
+  const current = localStorage.getItem("selectedDate");
+  if (!current) return;
+
+  const [year, month, day] = current.split("-").map(Number);
+  const date = new Date(year, month - 1, day);
+  date.setDate(date.getDate() + offset);
+
+  const newDate = [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0")
+  ].join("-");
+
+  localStorage.setItem("selectedDate", newDate);
+  location.reload();
+}
   </script>
 
 </body>
