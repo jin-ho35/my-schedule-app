@@ -21,36 +21,33 @@ document.getElementById("dropdownHeader").onclick = () => {
   list.style.display = (list.style.display === "none") ? "block" : "none";
 };
 
-// ★ タスク追加（時刻なしOK・時刻ありは上書き）
+// ★ タスク追加（予定変更時は上書き保存）
 function addTask() {
   const name = document.getElementById("taskInput").value;
   const time = document.getElementById("timeInput").value;
 
-  if (name === "") return;   // ★ タスク名だけ必須
+if (name === "") return;
 
   // ★ 日付ごとの予定（カレンダー用）
   allTasks[selectedDate] = allTasks[selectedDate] || [];
 
-  // ★ 時刻ありの場合だけ上書き判定する
+  // ★ 同じ時間の予定があれば上書き（変更扱い）
   let existingIndex = -1;
-  if (time) {
-    existingIndex = allTasks[selectedDate].findIndex(t => t.time === time);
-  }
 
+if (time !== "") {
+  existingIndex =
+    allTasks[selectedDate].findIndex(
+      t => t.time === time
+    );
+}
   if (existingIndex >= 0) {
-    // ★ 時刻あり → 上書き
     allTasks[selectedDate][existingIndex] = { name, time };
   } else {
-    // ★ 時刻なし → 常に新規追加
     allTasks[selectedDate].push({ name, time });
   }
 
-  // ★ 時刻ありタスクだけソート（時刻なしは後ろへ）
-  allTasks[selectedDate].sort((a, b) => {
-    if (!a.time) return 1;   // aが時刻なし → 後ろへ
-    if (!b.time) return -1;  // bが時刻なし → 後ろへ
-    return a.time.localeCompare(b.time);
-  });
+  // 時間順に並べ替え
+  allTasks[selectedDate].sort((a, b) => a.time.localeCompare(b.time));
 
   localStorage.setItem("allTasks", JSON.stringify(allTasks));
 
@@ -60,21 +57,101 @@ function addTask() {
     localStorage.setItem("pastTasks", JSON.stringify(pastTasks));
   }
 
-  displayTasks();
-  displayPastTasks();
+ displayPastTasks();
 
-  document.getElementById("taskInput").value = "";
-  document.getElementById("timeInput").value = "";
+document.getElementById("taskInput").value = "";
+document.getElementById("timeInput").value = "";
+
+renderPreview();
 }
 
-// ★ 日付ごとの予定削除（その日付だけ）
+function renderPreview() {
+
+  const preview =
+    document.getElementById("previewList");
+
+  const freePreview =
+    document.getElementById("freeTaskList");
+
+  preview.innerHTML = "";
+  freePreview.innerHTML = "";
+
+  const tasks =
+    allTasks[selectedDate] || [];
+
+  const timedTasks =
+    tasks.filter(task => task.time);
+
+  const freeTasks =
+    tasks.filter(task => !task.time);
+
+  // 時刻あり
+  timedTasks.forEach(task => {
+
+  const row = document.createElement("div");
+// 時刻ありの予定
+row.className = "previewItem scheduleCard";
+
+const text = document.createElement("span");
+text.textContent =
+  `${task.time}　${task.name}`;
+
+const delBtn = document.createElement("button");
+delBtn.textContent = "削除";
+
+delBtn.onclick = () => {
+  deleteTask(
+    allTasks[selectedDate].indexOf(task)
+  );
+
+  renderPreview();
+};
+
+row.appendChild(text);
+row.appendChild(delBtn);
+
+preview.appendChild(row);
+  });
+
+// 時刻なし
+freeTasks.forEach(task => {
+
+  const row = document.createElement("div");
+// 時刻なしのタスク
+row.className = "previewItem taskCard";
+
+  const text = document.createElement("span");
+  text.textContent = task.name;
+
+  const delBtn = document.createElement("button");
+  delBtn.textContent = "削除";
+
+  delBtn.onclick = () => {
+
+    deleteTask(
+      allTasks[selectedDate].indexOf(task)
+    );
+
+    renderPreview();
+
+  };
+
+  row.appendChild(text);
+  row.appendChild(delBtn);
+
+  freePreview.appendChild(row);
+
+});
+
+}
+
 function deleteTask(indexToDelete) {
   if (allTasks[selectedDate]) {
     allTasks[selectedDate].splice(indexToDelete, 1);
     localStorage.setItem("allTasks", JSON.stringify(allTasks));
   }
 
-  displayTasks();
+  renderPreview();
 }
 
 // 過去タスク一覧表示（削除ボタン付き）
@@ -98,19 +175,8 @@ function displayPastTasks() {
     };
 
     const delBtn = document.createElement("button");
-    delBtn.textContent = "×";
+    delBtn.textContent = "削除";
     delBtn.style.marginLeft = "10px";
-    delBtn.style.width = "26px";
-    delBtn.style.height = "26px";
-    delBtn.style.borderRadius = "50%";
-    delBtn.style.border = "none";
-    delBtn.style.backgroundColor = "#ff4d4d";
-    delBtn.style.color = "white";
-    delBtn.style.fontSize = "18px";
-    delBtn.style.cursor = "pointer";
-    delBtn.style.display = "flex";
-    delBtn.style.alignItems = "center";
-    delBtn.style.justifyContent = "center";
     delBtn.onclick = () => deletePastTask(i);
 
     li.appendChild(nameSpan);
@@ -126,58 +192,56 @@ function deletePastTask(indexToDelete) {
   displayPastTasks();
 }
 
-// ★ タスク一覧表示（その日付の予定だけ）
-function displayTasks() {
-  const list = document.getElementById("taskList");
-  list.innerHTML = "";
-
-  const dayTasks = allTasks[selectedDate] || [];
-
-  dayTasks.forEach((t, i) => {
-    const li = document.createElement("li");
-
-    li.style.display = "flex";
-    li.style.justifyContent = "space-between";
-    li.style.alignItems = "center";
-    li.style.margin = "6px 0";
-
-    const textSpan = document.createElement("span");
-    textSpan.textContent = `${t.time || "（時刻なし）"} - ${t.name}`;
-
-    const delBtn = document.createElement("button");
-    delBtn.textContent = "×";
-    delBtn.style.width = "26px";
-    delBtn.style.height = "26px";
-    delBtn.style.borderRadius = "50%";
-    delBtn.style.border = "none";
-    delBtn.style.backgroundColor = "#ff6666";
-    delBtn.style.color = "white";
-    delBtn.style.cursor = "pointer";
-    delBtn.style.fontSize = "18px";
-    delBtn.style.lineHeight = "0";
-    delBtn.onclick = () => deleteTask(i);
-
-    li.appendChild(textSpan);
-    li.appendChild(delBtn);
-    list.appendChild(li);
-  });
-}
-
-// ★ view.html へ移動（時刻ありタスクだけ）
+// view.html へ移動
 function startView() {
-  const tasks = allTasks[selectedDate] || [];
-
-  const timedTasks = tasks.filter(t => t.time);
-
-  if (timedTasks.length === 0) {
-    alert("時刻付きの予定がありません。");
-    return;
-  }
-
-  localStorage.setItem("timedTasks", JSON.stringify(timedTasks));
   window.location.href = "view.html";
 }
 
+// view.html 用
+function nextTask() {
+  if (index < tasks.length) {
+    const t = tasks[index];
+    document.getElementById("taskBox").textContent = `${t.time} - ${t.name}`;
+
+    // ★ 次の予定を表示（小さめ）
+    if (index + 1 < tasks.length) {
+      const next = tasks[index + 1];
+      document.getElementById("nextTaskBox").textContent =
+        `次の予定： ${next.time} - ${next.name}`;
+    } else {
+      document.getElementById("nextTaskBox").textContent = "";
+    }
+
+    index++;
+  } else {
+    document.getElementById("taskBox").textContent = "今日の予定はすべて完了しました！";
+    document.getElementById("nextTaskBox").textContent = "";
+  }
+}
+
+function prevTask() {
+  const dayTasks = allTasks[selectedDate] || [];
+
+  if (index > 1) {
+    index -= 2;
+    nextTask();
+  } else {
+    document.getElementById("taskBox").textContent = "最初のタスクです";
+  }
+}
+
+function goToInput() {
+  window.location.href = "index.html";
+}
+
+function goToCalendar() {
+  window.location.href = "calendar.html";
+}
+
+function goToChecklist() {
+  window.location.href = "checklist.html";
+}
+
 // 初期表示
-displayTasks();
+renderPreview();
 displayPastTasks();
