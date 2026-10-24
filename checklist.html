@@ -19,18 +19,18 @@
   }
 
   #taskGrid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);   /* ★ 横4列 */
-    gap: 10px;                                /* ★ カード間の余白 */
-    margin-top: 20px;
-  }
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 20px;
+}
 
   .taskCard {
     background: #fff9d6;                      /* ★ 初期は薄い黄色 */
     border: 2px solid #f0e4a0;
     border-radius: 10px;
-    padding: 12px;
-    min-height: 60px;
+    padding: 6px;
+    min-height: 30px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -48,8 +48,8 @@
   /* スマホ向け */
   @media (max-width: 600px) {
     .taskCard {
-      min-height: 70px;
-      font-size: 18px;
+      min-height: 30px;
+      font-size: 20px;
     }
   }
 
@@ -63,13 +63,36 @@
     background-color: #f0f0f0;
     cursor: pointer;
   }
+
+  .dateNav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.dateNav h2 {
+  margin: 0;
+}
+
+.dateNav button {
+  width: 44px;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  font-size: 26px;
+}
 </style>
 </head>
 
 <body>
 
 <h1>タスク一覧</h1>
-<h2 id="viewDate"></h2>
+<div class="dateNav">
+  <button type="button" onclick="changeDate(-1)">‹</button>
+  <h2 id="viewDate"></h2>
+  <button type="button" onclick="changeDate(1)">›</button>
+</div>
 
 <div id="taskGrid"></div>
 
@@ -126,6 +149,23 @@ noTimeTasks.forEach((t, index) => {
   window.location.href = "index.html";
 }
 
+function changeDate(offset) {
+  const current = localStorage.getItem("selectedDate");
+  if (!current) return;
+
+  const [year, month, day] = current.split("-").map(Number);
+  const date = new Date(year, month - 1, day);
+  date.setDate(date.getDate() + offset);
+
+  const newDate = [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0")
+  ].join("-");
+
+  localStorage.setItem("selectedDate", newDate);
+  location.reload();
+}
 </script>
 
 </body>
