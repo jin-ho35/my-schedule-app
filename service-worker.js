@@ -1,43 +1,44 @@
-const CACHE_NAME = "my-schedule-app-cache-v1";
-const urlsToCache = [
-  "/my-schedule-app/",
-  "/my-schedule-app/index.html",
-  "/my-schedule-app/checklist.html",
-  "/my-schedule-app/calendar.html",
-  "/my-schedule-app/view.html",
-  "/my-schedule-app/app.js",
-  "/my-schedule-app/manifest.json"
+const CACHE_NAME = "app-cache-v2";
+
+const APP_FILES = [
+  "./index.html",
+  "./calendar.html",
+  "./view.html",
+  "./checklist.html",
+  "./app.js",
+  "./manifest.json",
+  "./icon.png"
 ];
 
-// インストール（初回起動時）
-self.addEventListener("install", event => {
+self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(urlsToCache);
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(APP_FILES);
     })
   );
 });
 
-// オフライン対応（キャッシュ優先）
-self.addEventListener("fetch", event => {
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames
+          .filter((name) =>
+            (name === "app-cache" || name.startsWith("app-cache-")) &&
+            name !== CACHE_NAME
+          )
+          .map((name) => caches.delete(name))
+      );
+    })
+  );
+});
+
+self.addEventListener("fetch", (event) => {
+  if (event.request.method !== "GET") return;
+
   event.respondWith(
-    caches.match(event.request).then(response => {
+    caches.match(event.request).then((response) => {
       return response || fetch(event.request);
     })
-  );
-});
-
-// 古いキャッシュの削除
-self.addEventListener("activate", event => {
-  event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(
-        keys.map(key => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key);
-          }
-        })
-      )
-    )
   );
 });
