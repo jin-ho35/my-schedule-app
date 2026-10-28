@@ -1,4 +1,4 @@
-const CACHE_NAME = "app-cache-v2";
+const CACHE_NAME = "app-cache-v3";
 
 const APP_FILES = [
   "./index.html",
@@ -7,7 +7,8 @@ const APP_FILES = [
   "./checklist.html",
   "./app.js",
   "./manifest.json",
-  "./icon.png"
+  "./icon.png",
+  "./icon-512.png"
 ];
 
 self.addEventListener("install", (event) => {
