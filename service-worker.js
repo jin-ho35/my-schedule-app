@@ -7,7 +7,7 @@ const APP_FILES = [
   "./checklist.html",
   "./app.js",
   "./manifest.json",
-  "./icon.png",
+  "./icon-192.png",
   "./icon-512.png"
 ];
 
