@@ -1,4 +1,4 @@
-const CACHE_NAME = "app-cache-v3";
+const CACHE_NAME = "app-cache-v4";
 
 const APP_FILES = [
   "./index.html",
@@ -7,7 +7,7 @@ const APP_FILES = [
   "./checklist.html",
   "./app.js",
   "./manifest.json",
-  "./icon-192.png",
+  "./icon.png",
   "./icon-512.png"
 ];
 
