@@ -104,6 +104,17 @@ input {
   background: #fef3c7;
 }
 
+/* 重要な予定カード */
+.importantCard {
+  border: 1px solid #fca5a5;
+  background: #F8DADA;
+}
+
+/* 入力中プレビュー */
+#draftPreview {
+  margin-top: 10px;
+}
+
 /* カード内の「削除」ボタン */
 .previewItem button {
   width: auto;
@@ -273,7 +284,7 @@ button#backToCalendarBtn {
 
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="./icon.png">
-  
+
 </head>
 <body>
 <div class="dateNav">
@@ -297,7 +308,26 @@ button#backToCalendarBtn {
 
 </div>
 
+<!-- 重要な予定のチェック -->
+<div style="margin: 5px 0 12px; text-align: left;">
+  <label style="display: inline-flex; align-items: center; gap: 6px;">
+    <input
+      type="checkbox"
+      id="importantInput"
+      style="width: auto; height: auto; margin: 0;"
+    >
+    重要な予定（赤色で表示）
+  </label>
+</div>
+
 <button onclick="addTask()">追加</button>
+
+<!-- 入力中のプレビューカード -->
+<div
+  id="draftPreview"
+  class="previewItem"
+  style="display: none;"
+></div>
 
 <!-- ★ ドロップダウンボックス（普段は閉じている） -->
 
