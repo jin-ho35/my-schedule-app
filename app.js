@@ -4,6 +4,22 @@ let pastTasks = JSON.parse(localStorage.getItem("pastTasks")) || [];
 // ★ 日付ごとの予定（カレンダー用）
 let allTasks = JSON.parse(localStorage.getItem("allTasks")) || {};
 
+// ★ アプリ起動時に当日の日付を設定
+const launchSessionKey = "taskAppLaunchInitialized";
+
+if (!sessionStorage.getItem(launchSessionKey)) {
+  const now = new Date();
+
+  const today = [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, "0"),
+    String(now.getDate()).padStart(2, "0")
+  ].join("-");
+
+  localStorage.setItem("selectedDate", today);
+  sessionStorage.setItem(launchSessionKey, "true");
+}
+
 // ★ カレンダーで選択された日付
 const selectedDate = localStorage.getItem("selectedDate");
 
