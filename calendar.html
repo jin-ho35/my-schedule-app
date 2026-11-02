@@ -39,12 +39,30 @@
       font-size: 16px;
     }
 
-    /* 通常の予定がある日 */
-    .hasTask {
-      background-color: #FFEB99;
-      color: black;
-      border-radius: 6px;
-    }
+    /* 時刻ありの予定：薄い青 */
+.hasTimedTask {
+  background-color: #DCEEFF;
+  color: black;
+  border-radius: 6px;
+}
+
+/* 時刻なしの予定：薄い黄色 */
+.hasUntimedTask {
+  background-color: #FFEB99;
+  color: black;
+  border-radius: 6px;
+}
+
+/* 両方の予定がある日：青と黄色の半分ずつ */
+.hasBothTasks {
+  background: linear-gradient(
+    to right,
+    #DCEEFF 50%,
+    #FFEB99 50%
+  );
+  color: black;
+  border-radius: 6px;
+}
 
     /* 重要な予定がある日 */
     .highTask {
@@ -232,15 +250,29 @@
         }
 
         // 予定がある日を色分け
-        const tasks = allTasks[dateStr] || [];
+const tasks = allTasks[dateStr] || [];
 
-        if (tasks.length > 0) {
-          if (tasks.some(task => task.importance === "high")) {
-            cell.classList.add("highTask");
-          } else {
-            cell.classList.add("hasTask");
-          }
-        }
+if (tasks.length > 0) {
+
+  if (tasks.some(task => task.importance === "high")) {
+    cell.classList.add("highTask");
+
+  } else {
+
+    const hasTimedTasks = tasks.some(task => task.time);
+    const hasUntimedTasks = tasks.some(task => !task.time);
+
+    if (hasTimedTasks && hasUntimedTasks) {
+      cell.classList.add("hasBothTasks");
+
+    } else if (hasTimedTasks) {
+      cell.classList.add("hasTimedTask");
+
+    } else if (hasUntimedTasks) {
+      cell.classList.add("hasUntimedTask");
+    }
+  }
+}
 
         // 日付を選ぶ
         cell.onclick = () => {
