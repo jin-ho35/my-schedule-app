@@ -45,15 +45,24 @@
   background:#eef6ff;
   border:1px solid #93c5fd;
   border-radius:10px;
-  padding:5px;
+  padding:7px;
   margin:10px 0;
   font-size:24px;
   cursor:pointer;
 }
 
-.taskItem.done{
-  background:#dcdcdc;
-  color:#666;
+/* 重要な予定 */
+.taskItem.important {
+  background: #F8DADA;
+  border: 1px solid #fca5a5;
+}
+
+/* 達成済みの予定は灰色にする */
+.taskItem.done,
+.taskItem.important.done {
+  background: #bdbdbd;
+  color: #555;
+  border: 1px solid #999;
 }
 
 @media (max-width: 600px) {
@@ -136,10 +145,9 @@
 
     // ★ この日付の予定だけを使う（ここが重要）
     
-const allDayTasks = allTasks[selectedDate] || [];
+    const allDayTasks = allTasks[selectedDate] || [];
 
-const tasks =
-  allDayTasks.filter(task => task.time);
+    const tasks = allDayTasks.filter(task => task.time);
 
     function goToInput() {
       window.location.href = "index.html";
@@ -166,14 +174,22 @@ function updateProgress() {
 tasks.forEach((task, index) => {
 
   const card = document.createElement("div");
-  card.className = "taskItem";
+
+const isImportant =
+  task.important === true || task.importance === "high";
+
+card.className = isImportant
+  ? "taskItem important"
+  : "taskItem";
 
   // 達成済みなら色変更
   if (doneTasks.includes(index)) {
     card.classList.add("done");
   }
 
-  card.textContent = `${task.time} - ${task.name}`;
+ card.textContent = task.time
+  ? `${task.time} - ${task.name}`
+  : task.name;
 
   card.onclick = () => {
 
