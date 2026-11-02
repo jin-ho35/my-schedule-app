@@ -29,7 +29,7 @@
     background: #fff9d6;                      /* ★ 初期は薄い黄色 */
     border: 2px solid #f0e4a0;
     border-radius: 10px;
-    padding: 6px;
+    padding: 7px;
     min-height: 30px;
     display: flex;
     justify-content: center;
@@ -44,6 +44,12 @@
     color: #666;
     border-color: #bbb;
   }
+
+  /* 重要なタスク */
+.taskCard.important:not(.done) {
+  background: #F8DADA;
+  border-color: #fca5a5;
+}
 
   /* スマホ向け */
   @media (max-width: 600px) {
@@ -120,7 +126,13 @@ const noTimeTasks = tasks.filter(t => !t.time);
 // グリッドに表示
 noTimeTasks.forEach((t, index) => {
   const card = document.createElement("div");
-  card.className = "taskCard";
+
+  const isImportant =
+    t.important === true || t.importance === "high";
+
+  card.className = isImportant
+    ? "taskCard important"
+    : "taskCard";
 
   // 達成済みなら灰色にする
   if (doneTasks.includes(index)) {
