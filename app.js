@@ -41,6 +41,7 @@ document.getElementById("dropdownHeader").onclick = () => {
 function addTask() {
   const name = document.getElementById("taskInput").value;
   const time = document.getElementById("timeInput").value;
+  const important = document.getElementById("importantInput").checked;
 
 if (name === "") return;
 
@@ -57,9 +58,8 @@ if (time !== "") {
     );
 }
   if (existingIndex >= 0) {
-    allTasks[selectedDate][existingIndex] = { name, time };
-  } else {
-    allTasks[selectedDate].push({ name, time });
+    allTasks[selectedDate][existingIndex] = { name, time, important };  } else {
+    allTasks[selectedDate].push({ name, time, important });
   }
 
   // 時間順に並べ替え
@@ -77,6 +77,7 @@ if (time !== "") {
 
 document.getElementById("taskInput").value = "";
 document.getElementById("timeInput").value = "";
+document.getElementById("importantInput").checked = false;
 
 renderPreview();
 }
@@ -106,7 +107,11 @@ function renderPreview() {
 
   const row = document.createElement("div");
 // 時刻ありの予定
-row.className = "previewItem scheduleCard";
+const isImportant = task.important === true || task.importance === "high";
+
+row.className = isImportant
+  ? "previewItem importantCard"
+  : "previewItem scheduleCard";
 
 const text = document.createElement("span");
 text.textContent =
@@ -134,7 +139,11 @@ freeTasks.forEach(task => {
 
   const row = document.createElement("div");
 // 時刻なしのタスク
-row.className = "previewItem taskCard";
+const isImportant = task.important === true || task.importance === "high";
+
+row.className = isImportant
+  ? "previewItem importantCard"
+  : "previewItem taskCard";
 
   const text = document.createElement("span");
   text.textContent = task.name;
@@ -159,6 +168,38 @@ row.className = "previewItem taskCard";
 
 });
 
+}
+
+// 入力中のプレビューを表示
+function renderInputPreview() {
+  const draft = document.getElementById("draftPreview");
+
+  const name = document.getElementById("taskInput").value.trim();
+  const time = document.getElementById("timeInput").value;
+  const important = document.getElementById("importantInput").checked;
+
+  // タスク名が空ならプレビューを隠す
+  if (name === "") {
+    draft.style.display = "none";
+    draft.textContent = "";
+    return;
+  }
+
+  // プレビューを表示
+  draft.style.display = "flex";
+  draft.className = "previewItem";
+
+  // 色を設定
+  if (important) {
+    draft.classList.add("importantCard");
+  } else if (time !== "") {
+    draft.classList.add("scheduleCard");
+  } else {
+    draft.classList.add("taskCard");
+  }
+
+  // 入力内容を表示
+  draft.textContent = time ? `${time}　${name}（入力中）` : `${name}（入力中）`;
 }
 
 function deleteTask(indexToDelete) {
@@ -258,6 +299,12 @@ function goToChecklist() {
   window.location.href = "checklist.html";
 }
 
-// 初期表示
+// 入力内容が変わったらプレビューを更新
+document.getElementById("taskInput").addEventListener("input", renderInputPreview);
+document.getElementById("timeInput").addEventListener("input", renderInputPreview);
+document.getElementById("importantInput").addEventListener("change", renderInputPreview);
+
+// Initial display
 renderPreview();
 displayPastTasks();
+renderInputPreview();
