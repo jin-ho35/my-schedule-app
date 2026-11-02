@@ -250,27 +250,52 @@
         }
 
         // 予定がある日を色分け
+
+// 予定がある日を色分け
 const tasks = allTasks[dateStr] || [];
 
 if (tasks.length > 0) {
 
-  if (tasks.some(task => task.importance === "high")) {
-    cell.classList.add("highTask");
+  // それぞれの種類が含まれているか確認
+  const hasTimedTasks = tasks.some(task => !!task.time);
 
-  } else {
+  const hasUntimedTasks = tasks.some(task => !task.time);
 
-    const hasTimedTasks = tasks.some(task => task.time);
-    const hasUntimedTasks = tasks.some(task => !task.time);
+  const hasImportantTasks = tasks.some(
+    task => task.important === true || task.importance === "high"
+  );
 
-    if (hasTimedTasks && hasUntimedTasks) {
-      cell.classList.add("hasBothTasks");
+  // 該当する色を集める
+  const colors = [];
 
-    } else if (hasTimedTasks) {
-      cell.classList.add("hasTimedTask");
+  if (hasTimedTasks) {
+    colors.push("#DCEEFF"); // 薄い青
+  }
 
-    } else if (hasUntimedTasks) {
-      cell.classList.add("hasUntimedTask");
-    }
+  if (hasUntimedTasks) {
+    colors.push("#FFEB99"); // 薄い黄色
+  }
+
+  if (hasImportantTasks) {
+    colors.push("#F8DADA"); // 薄い赤
+  }
+
+  // 色が1種類なら単色、複数なら均等なグラデーション
+  if (colors.length === 1) {
+
+    cell.style.background = colors[0];
+
+  } else if (colors.length > 1) {
+
+    const stops = colors.map((color, index) => {
+      const start = (index / colors.length) * 100;
+      const end = ((index + 1) / colors.length) * 100;
+
+      return `${color} ${start}% ${end}%`;
+    });
+
+    cell.style.background =
+      `linear-gradient(to right, ${stops.join(", ")})`;
   }
 }
 
