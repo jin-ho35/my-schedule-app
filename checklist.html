@@ -113,10 +113,6 @@
   const allTasks = JSON.parse(localStorage.getItem("allTasks")) || {};
   const tasks = allTasks[selectedDate] || [];
 
-  // 達成状態の保存領域（ページを閉じても残る）
-  const doneKey = "doneTasks_" + selectedDate;
-  let doneTasks = JSON.parse(localStorage.getItem(doneKey)) || [];
-
   const grid = document.getElementById("taskGrid");
 
   // タスクをグリッドに表示
@@ -134,25 +130,25 @@ noTimeTasks.forEach((t, index) => {
     ? "taskCard important"
     : "taskCard";
 
-  // 達成済みなら灰色にする
-  if (doneTasks.includes(index)) {
-    card.classList.add("done");
-  }
+  // 保存済みの達成状態を反映
+if (t.done === true) {
+  card.classList.add("done");
+}
 
   card.textContent = t.name;
 
   // タップで達成状態を切り替え
-  card.onclick = () => {
-    card.classList.toggle("done");
+card.onclick = () => {
 
-    if (card.classList.contains("done")) {
-      doneTasks.push(index);
-    } else {
-      doneTasks = doneTasks.filter(i => i !== index);
-    }
+  t.done = !t.done;
 
-    localStorage.setItem(doneKey, JSON.stringify(doneTasks));
-  };
+  card.classList.toggle("done", t.done);
+
+  localStorage.setItem(
+    "allTasks",
+    JSON.stringify(allTasks)
+  );
+};
 
   grid.appendChild(card);
 });
