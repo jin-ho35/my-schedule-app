@@ -162,6 +162,40 @@
   <!-- 1月から12月の月カード -->
   <div id="monthGrid"></div>
 
+  <!-- データ管理 -->
+  <hr style="margin-top:30px;">
+
+  <div id="dataManagement" style="
+    max-width:400px;
+    margin:20px auto;
+    padding:15px;
+    border:1px solid #ccc;
+    border-radius:10px;
+  ">
+
+    <h3>データ管理</h3>
+
+    <p style="font-size:14px; color:#666;">
+      予定やタスクのデータを保存・復元できます。
+    </p>
+
+    <button type="button" onclick="backupData()">
+      データをバックアップ
+    </button>
+
+    <button type="button" onclick="selectBackupFile()">
+      データを復元
+    </button>
+
+    <input
+      type="file"
+      id="backupFile"
+      accept=".json,application/json"
+      style="display:none;"
+    >
+
+  </div>
+
   <script>
     // 全ての予定データ
     const allTasks = JSON.parse(localStorage.getItem("allTasks")) || {};
@@ -338,6 +372,129 @@ if (tasks.length > 0) {
 
       generateCalendar(current.getFullYear(), current.getMonth());
     }
+
+
+// ==============================
+// データのバックアップ
+// ==============================
+function backupData() {
+
+  const backupContents = {
+    version: 1,
+    createdAt: new Date().toISOString(),
+    allTasks: JSON.parse(localStorage.getItem("allTasks")) || {},
+    pastTasks: JSON.parse(localStorage.getItem("pastTasks")) || []
+  };
+
+  const json = JSON.stringify(backupContents, null, 2);
+
+  const blob = new Blob(
+    [json],
+    { type: "application/json" }
+  );
+
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "task-backup.json";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  URL.revokeObjectURL(url);
+
+  alert("バックアップデータを作成しました。");
+}
+
+
+// ==============================
+// 復元するファイルを選択
+// ==============================
+function selectBackupFile() {
+  document.getElementById("backupFile").click();
+}
+
+
+// ==============================
+// バックアップファイルの読み込み
+// ==============================
+document.getElementById("backupFile").addEventListener("change", function(event) {
+
+  const file = event.target.files[0];
+
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = function() {
+
+    try {
+
+      const backup = JSON.parse(reader.result);
+
+      // データ形式を確認
+      if (
+        !backup ||
+        typeof backup.allTasks !== "object" ||
+        backup.allTasks === null ||
+        Array.isArray(backup.allTasks) ||
+        !backup.pastTasks ||
+        !Array.isArray(backup.pastTasks)
+      ) {
+        alert("このファイルは正しいバックアップデータではありません。");
+        return;
+      }
+
+      // 日付ごとの予定データを確認
+      const validTasks = Object.values(backup.allTasks).every(dayTasks =>
+        Array.isArray(dayTasks) &&
+        dayTasks.every(task =>
+          task && typeof task === "object" && !Array.isArray(task)
+        )
+      );
+
+      if (!validTasks) {
+        alert("予定データの形式が正しくありません。");
+        return;
+      }
+
+      // 復元前の確認
+      const confirmed = confirm(
+        "現在保存されている予定データを上書きして復元します。\nよろしいですか？"
+      );
+
+      if (!confirmed) return;
+
+      // データを復元
+      localStorage.setItem(
+        "allTasks",
+        JSON.stringify(backup.allTasks)
+      );
+
+      localStorage.setItem(
+        "pastTasks",
+        JSON.stringify(backup.pastTasks)
+      );
+
+      alert("データを復元しました。");
+
+      // 画面を更新
+      location.reload();
+
+    } catch (error) {
+
+      alert("ファイルを読み込めませんでした。");
+
+    }
+  };
+
+  reader.readAsText(file);
+
+  // 同じファイルを再度選択できるようにする
+  event.target.value = "";
+
+});
 
     // 初期表示
     createMonthCards();
