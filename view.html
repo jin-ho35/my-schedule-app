@@ -160,15 +160,11 @@
 // 今日の予定を表示
 const taskList = document.getElementById("taskList");
 
-// 保存済み達成状態
-const doneKey = "doneTasks_" + selectedDate;
-let doneTasks = JSON.parse(localStorage.getItem(doneKey)) || [];
-
 function updateProgress() {
+  const doneCount = tasks.filter(task => task.done === true).length;
 
   document.getElementById("progressBox").textContent =
-    `達成率 ${doneTasks.length} / ${tasks.length}`;
-
+    `達成率 ${doneCount} / ${tasks.length}`;
 }
 
 tasks.forEach((task, index) => {
@@ -182,10 +178,10 @@ card.className = isImportant
   ? "taskItem important"
   : "taskItem";
 
-  // 達成済みなら色変更
-  if (doneTasks.includes(index)) {
-    card.classList.add("done");
-  }
+  // 保存済みの達成状態を反映
+if (task.done === true) {
+  card.classList.add("done");
+}
 
  card.textContent = task.time
   ? `${task.time} - ${task.name}`
@@ -193,26 +189,17 @@ card.className = isImportant
 
   card.onclick = () => {
 
-    card.classList.toggle("done");
+  task.done = !task.done;
 
-    if (card.classList.contains("done")) {
+  card.classList.toggle("done", task.done);
 
-      if (!doneTasks.includes(index)) {
-        doneTasks.push(index);
-      }
+  localStorage.setItem(
+    "allTasks",
+    JSON.stringify(allTasks)
+  );
 
-    } else {
-
-      doneTasks = doneTasks.filter(i => i !== index);
-
-    }
-
-    localStorage.setItem(
-      doneKey,
-      JSON.stringify(doneTasks)
-    );
-    updateProgress();
-  };
+  updateProgress();
+};
 
   taskList.appendChild(card);
   updateProgress();
