@@ -4,6 +4,30 @@ let pastTasks = JSON.parse(localStorage.getItem("pastTasks")) || [];
 // ★ 日付ごとの予定（カレンダー用）
 let allTasks = JSON.parse(localStorage.getItem("allTasks")) || {};
 
+// 既存タスクにもIDと完了状態を設定
+let tasksUpdated = false;
+
+Object.values(allTasks).forEach(dayTasks => {
+  dayTasks.forEach(task => {
+    if (!task.id) {
+      task.id =
+        Date.now().toString() +
+        Math.random().toString(36).slice(2);
+      tasksUpdated = true;
+    }
+
+    if (typeof task.done !== "boolean") {
+      task.done = false;
+      tasksUpdated = true;
+    }
+  });
+});
+
+// 補完したデータを保存
+if (tasksUpdated) {
+  localStorage.setItem("allTasks", JSON.stringify(allTasks));
+}
+
 // ★ アプリ起動時に当日の日付を設定
 const launchSessionKey = "taskAppLaunchInitialized";
 
@@ -57,10 +81,25 @@ if (time !== "") {
       t => t.time === time
     );
 }
-  if (existingIndex >= 0) {
-    allTasks[selectedDate][existingIndex] = { name, time, important };  } else {
-    allTasks[selectedDate].push({ name, time, important });
-  }
+if (existingIndex >= 0) {
+  const oldTask = allTasks[selectedDate][existingIndex];
+
+  allTasks[selectedDate][existingIndex] = {
+    ...oldTask,
+    name,
+    time,
+    important
+  };
+
+} else {
+  allTasks[selectedDate].push({
+    id: Date.now().toString() + Math.random().toString(36).slice(2),
+    name,
+    time,
+    important,
+    done: false
+  });
+}
 
   // 時間順に並べ替え
   allTasks[selectedDate].sort((a, b) => a.time.localeCompare(b.time));
