@@ -320,6 +320,27 @@ button#backToCalendarBtn {
   </label>
 </div>
 
+<!-- 次の7日間の予定設定 -->
+<div style="margin: 10px 0 12px; text-align: left;">
+
+  <button type="button" onclick="toggleRepeatDays()">
+    ▼ 次の7日間に設定
+  </button>
+
+  <div id="repeatDays" style="display:none; margin-top:10px;">
+
+    <div id="repeatDayLabels"
+         style="display:flex; justify-content:space-between; gap:4px;">
+    </div>
+
+    <div id="repeatDayChecks"
+         style="display:flex; justify-content:space-between; gap:4px;">
+    </div>
+
+  </div>
+
+</div>
+
 <button onclick="addTask()">追加</button>
 
 <!-- 入力中のプレビューカード -->
@@ -408,6 +429,82 @@ button#backToCalendarBtn {
   localStorage.setItem("selectedDate", newDate);
   location.reload();
 }
+
+// 次の7日間の曜日・日付を表示
+function toggleRepeatDays() {
+
+  const area = document.getElementById("repeatDays");
+
+  if (area.style.display === "none") {
+    area.style.display = "block";
+    createRepeatDays();
+  } else {
+    area.style.display = "none";
+  }
+}
+
+function createRepeatDays() {
+
+  const labels = document.getElementById("repeatDayLabels");
+  const checks = document.getElementById("repeatDayChecks");
+
+  labels.innerHTML = "";
+  checks.innerHTML = "";
+
+  const today = new Date(localStorage.getItem("selectedDate"));
+
+  const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
+
+  for (let i = 0; i < 7; i++) {
+
+    const date = new Date(today);
+    date.setDate(today.getDate() + i);
+
+    const day = date.getDay();
+
+    // 日付
+    const dateText =
+      date.getFullYear() + "-" +
+      String(date.getMonth() + 1).padStart(2, "0") + "-" +
+      String(date.getDate()).padStart(2, "0");
+
+    // 1日分の選択ボタン
+    const dayButton = document.createElement("button");
+    dayButton.type = "button";
+    dayButton.dataset.date = dateText;
+
+    dayButton.innerHTML =
+      weekdays[day] + "<br>" +
+      date.getDate();
+
+    dayButton.style.flex = "1";
+    dayButton.style.padding = "8px 2px";
+    dayButton.style.margin = "0 2px";
+    dayButton.style.border = "1px solid #ccc";
+    dayButton.style.borderRadius = "8px";
+    dayButton.style.background = "#fff";
+    dayButton.style.cursor = "pointer";
+    dayButton.style.fontSize = "13px";
+    dayButton.style.lineHeight = "1.4";
+
+    // タップで選択・解除
+    dayButton.onclick = () => {
+
+      dayButton.classList.toggle("selected");
+
+      if (dayButton.classList.contains("selected")) {
+        dayButton.style.background = "#0078D4";
+        dayButton.style.color = "white";
+      } else {
+        dayButton.style.background = "#fff";
+        dayButton.style.color = "black";
+      }
+    };
+
+    checks.appendChild(dayButton);
+  }
+}
+
 </script>
 </body>
 </html>
