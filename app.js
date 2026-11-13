@@ -65,46 +65,67 @@ document.getElementById("dropdownHeader").onclick = () => {
 function addTask() {
   const name = document.getElementById("taskInput").value;
   const time = document.getElementById("timeInput").value;
-  const important = document.getElementById("importantInput").checked;
+ const important = document.getElementById("importantInput").checked;
+
+// 次の7日間で選択された日付を取得
+const selectedRepeatDates = Array.from(
+  document.querySelectorAll("#repeatDayChecks button.selected")
+).map(button => button.dataset.date);
 
 if (name === "") return;
 
-  // ★ 日付ごとの予定（カレンダー用）
-  allTasks[selectedDate] = allTasks[selectedDate] || [];
+// 登録する日付を決定
+const targetDates = selectedRepeatDates.length > 0
+  ? selectedRepeatDates
+  : [selectedDate];
 
-  // ★ 同じ時間の予定があれば上書き（変更扱い）
+// 選択された各日付に予定を登録
+targetDates.forEach(targetDate => {
+
+  allTasks[targetDate] = allTasks[targetDate] || [];
+
+  // 同じ時間の予定があれば上書き（変更扱い）
   let existingIndex = -1;
 
-if (time !== "") {
-  existingIndex =
-    allTasks[selectedDate].findIndex(
+  if (time !== "") {
+    existingIndex = allTasks[targetDate].findIndex(
       t => t.time === time
     );
-}
-if (existingIndex >= 0) {
-  const oldTask = allTasks[selectedDate][existingIndex];
+  }
 
-  allTasks[selectedDate][existingIndex] = {
-    ...oldTask,
-    name,
-    time,
-    important
-  };
+  if (existingIndex >= 0) {
 
-} else {
-  allTasks[selectedDate].push({
-    id: Date.now().toString() + Math.random().toString(36).slice(2),
-    name,
-    time,
-    important,
-    done: false
-  });
-}
+    const oldTask = allTasks[targetDate][existingIndex];
+
+    allTasks[targetDate][existingIndex] = {
+      ...oldTask,
+      name,
+      time,
+      important
+    };
+
+  } else {
+
+    allTasks[targetDate].push({
+      id: Date.now().toString() +
+          Math.random().toString(36).slice(2),
+      name,
+      time,
+      important,
+      done: false
+    });
+
+  }
 
   // 時間順に並べ替え
-  allTasks[selectedDate].sort((a, b) => a.time.localeCompare(b.time));
+  allTasks[targetDate].sort(
+    (a, b) => a.time.localeCompare(b.time)
+  );
 
-  localStorage.setItem("allTasks", JSON.stringify(allTasks));
+});
+
+// 保存
+localStorage.setItem("allTasks", JSON.stringify(allTasks));
 
   // 過去タスク（重複なし）
   if (!pastTasks.includes(name)) {
@@ -117,6 +138,16 @@ if (existingIndex >= 0) {
 document.getElementById("taskInput").value = "";
 document.getElementById("timeInput").value = "";
 document.getElementById("importantInput").checked = false;
+
+// 7日間の選択状態をリセット
+document.querySelectorAll("#repeatDayChecks button").forEach(button => {
+  button.classList.remove("selected");
+  button.style.background = "#fff";
+  button.style.color = "black";
+});
+
+// 7日間の選択欄を閉じる
+document.getElementById("repeatDays").style.display = "none";
 
 renderPreview();
 }
