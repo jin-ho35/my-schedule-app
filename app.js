@@ -201,6 +201,27 @@ delBtn.onclick = () => {
 row.appendChild(text);
 row.appendChild(delBtn);
 
+// タップで完了状態を切り替え
+row.onclick = (event) => {
+
+  // 削除ボタンを押した場合は除外
+  if (event.target === delBtn) return;
+
+  task.done = !task.done;
+
+  row.classList.toggle("done", task.done);
+
+  localStorage.setItem(
+    "allTasks",
+    JSON.stringify(allTasks)
+  );
+};
+
+// 現在の完了状態を反映
+if (task.done === true) {
+  row.classList.add("done");
+}
+
 preview.appendChild(row);
   });
 
@@ -230,12 +251,32 @@ row.className = isImportant
     renderPreview();
 
   };
+  
+row.appendChild(text);
+row.appendChild(delBtn);
 
-  row.appendChild(text);
-  row.appendChild(delBtn);
+// タップで完了状態を切り替え
+row.onclick = (event) => {
 
-  freePreview.appendChild(row);
+  // 削除ボタンを押した場合は除外
+  if (event.target === delBtn) return;
 
+  task.done = !task.done;
+
+  row.classList.toggle("done", task.done);
+
+  localStorage.setItem(
+    "allTasks",
+    JSON.stringify(allTasks)
+  );
+};
+
+// 現在の完了状態を反映
+if (task.done === true) {
+  row.classList.add("done");
+}
+
+freePreview.appendChild(row);
 });
 
 }
