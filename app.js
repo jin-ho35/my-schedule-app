@@ -410,6 +410,20 @@ function goToChecklist() {
   window.location.href = "checklist.html";
 }
 
+function toggleTaskInputArea() {
+
+  const area = document.getElementById("taskInputArea");
+  const button = event.target;
+
+  if (area.style.display === "none") {
+    area.style.display = "block";
+    button.textContent = "▲ 予定を入力・編集";
+  } else {
+    area.style.display = "none";
+    button.textContent = "▼ 予定を入力・編集";
+  }
+}
+
 // 入力内容が変わったらプレビューを更新
 document.getElementById("taskInput").addEventListener("input", renderInputPreview);
 document.getElementById("timeInput").addEventListener("input", renderInputPreview);
