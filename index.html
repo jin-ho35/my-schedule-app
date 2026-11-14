@@ -303,6 +303,17 @@ button#backToCalendarBtn {
 <h1>予定を作る</h1>
 </div>
 
+<!-- 入力・履歴の収納 -->
+<div style="margin:10px 0; text-align:left;">
+
+  <button type="button" onclick="toggleTaskInputArea()">
+    ▼ 予定を入力・編集
+  </button>
+
+</div>
+
+<div id="taskInputArea">
+
 <div class="inputRow">
 
   <div class="timeInputWrap">
@@ -376,6 +387,8 @@ button#backToCalendarBtn {
   <!-- ★ 最初は非表示 -->
   <ul id="pastTaskList"
       style="list-style:none; padding-left:0; display:none;"></ul>
+</div>
+
 </div>
 
 <hr>
