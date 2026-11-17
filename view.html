@@ -111,13 +111,34 @@
   padding: 0;
   font-size: 26px;
 }
+
+.pageTitleNav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.pageTitleNav button {
+  width: 35px;
+  height: 35px;
+  font-size: 24px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+}
+
 </style>
 
 
 </head>
 <body>
 
+  <div class="pageTitleNav">
   <h1>予定開始</h1>
+  <button type="button" onclick="goToChecklist()">›</button>
+</div>
 
  <div class="dateNav">
   <button type="button" onclick="changeDate(-1)">‹</button>
@@ -155,6 +176,10 @@
 
     function goToCalendar() {
       window.location.href = "calendar.html";
+    }
+
+    function goToChecklist() {
+      window.location.href = "checklist.html";
     }
 
 // 今日の予定を表示
