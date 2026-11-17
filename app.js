@@ -410,6 +410,10 @@ function goToChecklist() {
   window.location.href = "checklist.html";
 }
 
+function goToView() {
+  window.location.href = "view.html";
+}
+
 function toggleTaskInputArea() {
 
   const area = document.getElementById("taskInputArea");
