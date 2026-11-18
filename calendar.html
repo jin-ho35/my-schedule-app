@@ -116,6 +116,16 @@
       outline-offset: 2px;
     }
 
+    #yearTitle {
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    #monthTitle {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
     @media (max-width: 600px) {
       body {
         padding: 12px;
@@ -140,18 +150,24 @@
         padding: 6px;
         font-size: 15px;
       }
+
     }
   </style>
 </head>
 
 <body>
 
-  <h1 id="monthTitle"></h1>
+ <div class="yearNav">
+  <span class="navBtn" onclick="prevYear()">＜</span>
+  <span id="yearTitle"></span>
+  <span class="navBtn" onclick="nextYear()">＞</span>
+</div>
 
-  <div>
-    <span class="navBtn" onclick="prevMonth()">← 前の月</span>
-    <span class="navBtn" onclick="nextMonth()">次の月 →</span>
-  </div>
+<div class="monthNav">
+  <span class="navBtn" onclick="prevMonth()">← 前の月</span>
+  <span id="monthTitle"></span>
+  <span class="navBtn" onclick="nextMonth()">次の月 →</span>
+</div>
 
   <br>
 
@@ -234,9 +250,10 @@
       const calendar = document.getElementById("calendar");
       const monthTitle = document.getElementById("monthTitle");
 
-      calendar.innerHTML = "";
-      monthTitle.textContent = `${year}年 ${month + 1}月`;
+     calendar.innerHTML = "";
 
+document.getElementById("yearTitle").textContent = `${year}年`;
+document.getElementById("monthTitle").textContent = `${month + 1}月`;
       // 表示中の月カードを強調
       document.querySelectorAll(".monthCard").forEach((card, index) => {
         card.classList.toggle("active", index === month);
@@ -373,6 +390,27 @@ if (tasks.length > 0) {
       generateCalendar(current.getFullYear(), current.getMonth());
     }
 
+    // 前の年へ
+    function prevYear() {
+      current = new Date(
+        current.getFullYear() - 1,
+        current.getMonth(),
+        1
+      );
+
+      generateCalendar(current.getFullYear(), current.getMonth());
+    }
+
+    // 次の年へ
+    function nextYear() {
+      current = new Date(
+        current.getFullYear() + 1,
+        current.getMonth(),
+        1
+      );
+
+      generateCalendar(current.getFullYear(), current.getMonth());
+    }
 
 // ==============================
 // データのバックアップ
